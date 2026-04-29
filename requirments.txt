@@ -1,0 +1,9 @@
+flask
+flask-cors
+pandas
+numpy
+joblib
+pdfplumber
+pytesseract
+pymupdf
+pillow
