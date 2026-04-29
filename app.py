@@ -25,13 +25,21 @@ print("🚀 CKD API Running...")
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+print("Current directory:", BASE_DIR)
+print("Files in directory:", os.listdir(BASE_DIR))
+
 # =========================
 # LOAD MODELS
 # =========================
-rf_model = joblib.load(os.path.join(BASE_DIR, "rf_model_egfr.pkl"))
-xgb_model = joblib.load(os.path.join(BASE_DIR, "xgb_model_egfr.pkl"))
-columns = joblib.load(os.path.join(BASE_DIR, "columns_egfr.pkl"))
-median = joblib.load(os.path.join(BASE_DIR, "median.pkl"))
+try:
+    rf_model = joblib.load(os.path.join(BASE_DIR, "rf_model_egfr.pkl"))
+    xgb_model = joblib.load(os.path.join(BASE_DIR, "xgb_model_egfr.pkl"))
+    columns = joblib.load(os.path.join(BASE_DIR, "columns_egfr.pkl"))
+    median = joblib.load(os.path.join(BASE_DIR, "median.pkl"))
+    print("Models loaded successfully")
+except Exception as e:
+    print("Model loading failed:", str(e))
+    raise e
 # =========================
 # VALIDATION
 # =========================
