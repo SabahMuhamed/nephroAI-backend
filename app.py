@@ -18,6 +18,7 @@ import io
 
 
 app = Flask(__name__)
+app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 print("🚀 CKD API Running...")
@@ -201,6 +202,11 @@ def extract_report():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
+@app.route("/")
+def home():
+    return "CKD API running"
+
 # =========================
 # PREDICT
 # =========================
@@ -272,4 +278,5 @@ def predict():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
