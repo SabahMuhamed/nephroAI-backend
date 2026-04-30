@@ -31,10 +31,15 @@ print("Files in directory:", os.listdir(BASE_DIR))
 # =========================
 # LOAD MODELS
 # =========================
-rf_model = None
-xgb_model = None
-columns = []
-median = 0
+try:
+    rf_model = joblib.load(os.path.join(BASE_DIR, "rf_model_egfr.pkl"))
+    xgb_model = joblib.load(os.path.join(BASE_DIR, "xgb_model_egfr.pkl"))
+    columns = joblib.load(os.path.join(BASE_DIR, "columns_egfr.pkl"))
+    median = joblib.load(os.path.join(BASE_DIR, "median.pkl"))
+    print("Models loaded successfully")
+except Exception as e:
+    print("Model loading failed:", str(e))
+    raise e
 # =========================
 # VALIDATION
 # =========================
