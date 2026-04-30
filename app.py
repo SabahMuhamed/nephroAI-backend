@@ -31,15 +31,24 @@ print("Files in directory:", os.listdir(BASE_DIR))
 # =========================
 # LOAD MODELS
 # =========================
-try:
-    rf_model = joblib.load(os.path.join(BASE_DIR, "rf_model_egfr.pkl"))
-    xgb_model = joblib.load(os.path.join(BASE_DIR, "xgb_model_egfr.pkl"))
-    columns = joblib.load(os.path.join(BASE_DIR, "columns_egfr.pkl"))
-    median = joblib.load(os.path.join(BASE_DIR, "median.pkl"))
-    print("Models loaded successfully")
-except Exception as e:
-    print("Model loading failed:", str(e))
-    raise e
+rf_model = None
+xgb_model = None
+columns = None
+median = None
+
+
+def load_models():
+    global rf_model, xgb_model, columns, median
+
+    if rf_model is None:
+        print("Loading models...")
+
+        rf_model = joblib.load(os.path.join(BASE_DIR, "rf_model_egfr.pkl"))
+        xgb_model = joblib.load(os.path.join(BASE_DIR, "xgb_model_egfr.pkl"))
+        columns = joblib.load(os.path.join(BASE_DIR, "columns_egfr.pkl"))
+        median = joblib.load(os.path.join(BASE_DIR, "median.pkl"))
+
+        print("Models loaded successfully")
 # =========================
 # VALIDATION
 # =========================
@@ -223,6 +232,7 @@ def home():
 @app.route("/predict", methods=["POST"])
 def predict():
     try:
+        load_models()
         data = request.json
         patient_name = data.get("patient_name", "Unknown")
 
@@ -251,7 +261,7 @@ def predict():
         })
 
         df = df.apply(pd.to_numeric, errors="coerce")
-        df = df.fillna(median)
+        df = df.fillna(pd.Series(median))
 
         for col in columns:
             if col not in df:
