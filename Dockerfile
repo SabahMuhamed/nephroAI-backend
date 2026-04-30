@@ -14,7 +14,7 @@ WORKDIR /app
 COPY . .
 
 # Install Python deps
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt && pip install xgboost
 
 # Start server
 CMD ["gunicorn", "-b", "0.0.0.0:10000", "app:app"]
