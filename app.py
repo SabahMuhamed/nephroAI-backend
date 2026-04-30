@@ -43,7 +43,7 @@ def load_models():
     if rf_model is None:
         print("Loading models...")
 
-        rf_model = joblib.load(os.path.join(BASE_DIR, "rf_model_egfr.pkl"))
+        rf_model = joblib.load(os.path.join(BASE_DIR, "rf_model_egfr.json"))
         xgb_model = joblib.load(os.path.join(BASE_DIR, "xgb_model_egfr.pkl"))
         columns = joblib.load(os.path.join(BASE_DIR, "columns_egfr.pkl"))
         median = joblib.load(os.path.join(BASE_DIR, "median.pkl"))
