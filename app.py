@@ -15,6 +15,7 @@ import re
 import gc
 from PIL import Image
 import io
+from xgboost import XGBClassifier
 
 
 app = Flask(__name__)
@@ -43,8 +44,14 @@ def load_models():
     if rf_model is None:
         print("Loading models...")
 
-        rf_model = joblib.load(os.path.join(BASE_DIR, "rf_model_egfr.json"))
-        xgb_model = joblib.load(os.path.join(BASE_DIR, "xgb_model_egfr.pkl"))
+        # RandomForest (joblib)
+        rf_model = joblib.load(os.path.join(BASE_DIR, "rf_model_egfr.pkl"))
+
+        # XGBoost (JSON)
+        xgb_model = XGBClassifier()
+        xgb_model.load_model(os.path.join(BASE_DIR, "xgb_model_egfr.json"))
+
+        # Columns + median
         columns = joblib.load(os.path.join(BASE_DIR, "columns_egfr.pkl"))
         median = joblib.load(os.path.join(BASE_DIR, "median.pkl"))
 
