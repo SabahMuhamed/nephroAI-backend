@@ -15,47 +15,22 @@ import re
 import gc
 from PIL import Image
 import io
-from xgboost import XGBClassifier
 
 
 app = Flask(__name__)
-app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024
-CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app)
 
 print("🚀 CKD API Running...")
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-print("Current directory:", BASE_DIR)
-print("Files in directory:", os.listdir(BASE_DIR))
 
 # =========================
 # LOAD MODELS
 # =========================
-rf_model = None
-xgb_model = None
-columns = None
-median = None
+rf_model = joblib.load("rf_model_egfr.pkl")
+xgb_model = joblib.load("xgb_model_egfr.pkl")
 
+columns = joblib.load("columns_egfr.pkl")
+median = joblib.load("median.pkl")
 
-def load_models():
-    global rf_model, xgb_model, columns, median
-
-    if rf_model is None:
-        print("Loading models...")
-
-        # RandomForest (joblib)
-        rf_model = joblib.load(os.path.join(BASE_DIR, "rf_model_egfr.pkl"))
-
-        # XGBoost (JSON)
-        xgb_model = XGBClassifier()
-        xgb_model.load_model(os.path.join(BASE_DIR, "xgb_model_egfr.json"))
-
-        # Columns + median
-        columns = joblib.load(os.path.join(BASE_DIR, "columns_egfr.pkl"))
-        median = joblib.load(os.path.join(BASE_DIR, "median.pkl"))
-
-        print("Models loaded successfully")
 # =========================
 # VALIDATION
 # =========================
@@ -114,8 +89,7 @@ def extract_report():
             return jsonify({"error": "No file uploaded"}), 400
 
         file = request.files["file"]
-        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
-        temp_path = temp_file.name
+        temp_path = tempfile.mktemp(suffix=".pdf")
         file.save(temp_path)
 
         text = ""
@@ -226,11 +200,6 @@ def extract_report():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
-@app.route("/")
-def home():
-    return "CKD API running"
-
 # =========================
 # PREDICT
 # =========================
@@ -239,7 +208,6 @@ def home():
 @app.route("/predict", methods=["POST"])
 def predict():
     try:
-        load_models()
         data = request.json
         patient_name = data.get("patient_name", "Unknown")
 
@@ -268,7 +236,7 @@ def predict():
         })
 
         df = df.apply(pd.to_numeric, errors="coerce")
-        df = df.fillna(pd.Series(median))
+        df = df.fillna(median)
 
         for col in columns:
             if col not in df:
@@ -303,5 +271,4 @@ def predict():
 
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(debug=True)
